@@ -280,10 +280,14 @@ if __name__ == '__main__':
         model_dict.update(pretrained_dict) 
         model.load_state_dict(model_dict)
         # other states from checkpoint -- optimizer, scheduler, loss, epoch
-        initial_epoch = checkpoint_state['epoch'] + 1
-        optimizer.load_state_dict(checkpoint_state['optimizer'])
-        scheduler.load_state_dict(checkpoint_state['scheduler'])
-        criterion.load_state_dict(checkpoint_state['criterion'])
+        if 'epoch' in checkpoint_state.keys() and checkpoint_state['epoch'] is not None:
+            initial_epoch = checkpoint_state['epoch'] + 1
+        if 'optimizer' in checkpoint_state.keys() and checkpoint_state['optimizer'] is not None:
+            optimizer.load_state_dict(checkpoint_state['optimizer'])
+        if 'scheduler' in checkpoint_state.keys() and checkpoint_state['scheduler'] is not None:
+            scheduler.load_state_dict(checkpoint_state['scheduler'])
+        if 'criterion' in checkpoint_state.keys() and checkpoint_state['criterion'] is not None:
+            criterion.load_state_dict(checkpoint_state['criterion'])
 
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
