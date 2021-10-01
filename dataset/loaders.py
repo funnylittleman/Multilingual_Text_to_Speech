@@ -133,3 +133,26 @@ def my_common_voice(root_path, meta_files=None):
                     f'Referenced audio file {full_audio} does not exist!')
                 items.append([cols[2], audio, speaker_name, language])
     return items
+
+
+def finetuning(root_path, meta_files=None):
+    data = os.path.join(root_path, 'all.txt')
+    items = []
+    with open(data, 'r', encoding='utf-8') as f:
+        for line in f:
+            line_tokens = line[:-1].split('|')
+            item = {
+                'id': line_tokens[0],
+                'speaker': line_tokens[1],
+                'language': line_tokens[2],
+                'audio': line_tokens[3],
+                'spectrogram': line_tokens[4],
+                'linear_spectrogram': line_tokens[5],
+                'text': line_tokens[6],
+                'phonemes': line_tokens[7]
+            }
+            full_audio = os.path.join(root_path, item['audio'])
+            assert os.path.isfile(full_audio), (
+                f'Referenced audio file {full_audio} does not exist!')
+            items.append([item['text'], item['audio'], item['speaker'], item['language']])
+    return items
