@@ -4,7 +4,6 @@ data/my_blizzard
 data/comvoi
 logs/
 checkpoints/
-*.wav
 *.tsv
 *.tsvm
 *.csv
