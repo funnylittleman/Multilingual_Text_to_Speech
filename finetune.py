@@ -309,6 +309,7 @@ if __name__ == '__main__':
     # training loop
 
     print('Pretraining:')
+    hp.speaker_number = 92
     print(hp.speaker_number)
     print(hp.speaker_embedding_dimension)
     print(hp.unique_speakers)
