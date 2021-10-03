@@ -212,6 +212,8 @@ if __name__ == '__main__':
     if args.checkpoint:
         checkpoint = os.path.join(checkpoint_dir, args.checkpoint)
         checkpoint_state = torch.load(checkpoint, map_location='cpu')
+        checkpoint_state['parameters']['unique_speakers'].append('finetuning')
+        checkpoint_state['parameters']['speaker_number'] += 1
         hp.load_state_dict(checkpoint_state['parameters'])      
 
     # load hyperparameters
@@ -219,8 +221,15 @@ if __name__ == '__main__':
         hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
         hp.load(hp_path)
 
+
+    # For finetuning
+    hp.perfect_sampling = False
+    hp.batch_size = 1
+    hp.epochs = 10
+
+
     # load dataset
-    dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset))
+    dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset), known_unique_speakers=hp.unique_speakers)
 
     if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
         dp_devices = args.max_gpus if hp.parallelization and torch.cuda.device_count() > 1 else 1 

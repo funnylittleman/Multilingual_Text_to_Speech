@@ -38,7 +38,7 @@ class Params:
     """
     
     dataset = "ljspeech"                 # one of: css10, ljspeech, vctk, my_blizzard, my_common_voice, mailabs, must have implementation in loaders.py
-    cache_spectrograms = False            # if True, during iterating the dataset, it first tries to load spectrograms (mel or linear) from cached files 
+    cache_spectrograms = True            # if True, during iterating the dataset, it first tries to load spectrograms (mel or linear) from cached files 
     languages = ['en-us']                # list of lnguages which will be loaded from the dataset, codes should correspond to 
                                          # espeak format (see 'phonemize --help) in order support the converion to phonemes
     balanced_sampling = False            # enables balanced sampling per languages (not speakers), multi_language must be True

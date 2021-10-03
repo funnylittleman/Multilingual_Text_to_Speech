@@ -26,13 +26,13 @@ class TextToSpeechDatasetCollection():
         validation_file (string, default 'val.txt'): Relative path to the meta-file of the validation set.
         test_file (string, default None): Relative path to the meta-file of the test set. Set None to ignore the test set.
     """
-    def __init__(self, dataset_root_dir, training_file="train.txt", validation_file="val.txt", test_file=None):
+    def __init__(self, dataset_root_dir, training_file="train.txt", validation_file="val.txt", test_file=None, known_unique_speakers=[]):
         
         # create training set
         train_full_path = os.path.join(dataset_root_dir, training_file)
         if not os.path.exists(train_full_path):
             raise IOError(f'The training set meta-file not found, given: {train_full_path}')
-        self.train = TextToSpeechDataset(train_full_path, dataset_root_dir)
+        self.train = TextToSpeechDataset(train_full_path, dataset_root_dir, known_unique_speakers)
         
         # create validation set
         val_full_path = os.path.join(dataset_root_dir, validation_file)
