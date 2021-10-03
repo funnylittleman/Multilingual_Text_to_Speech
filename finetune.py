@@ -250,6 +250,7 @@ if __name__ == '__main__':
 
     # find out number of unique speakers and languages
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+    hp.speaker_number = 92
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     # save all found speakers to hyper parameters
     if hp.multi_speaker and not args.checkpoint:
@@ -309,7 +310,6 @@ if __name__ == '__main__':
     # training loop
 
     print('Pretraining:')
-    hp.speaker_number = 92
     print(hp.speaker_number)
     print(hp.speaker_embedding_dimension)
     print(hp.unique_speakers)
