@@ -300,7 +300,7 @@ class TextToSpeechCollate():
                 languages = languages[sorted_idxs]
                 # convert a vector of language indices into a vector of one-hots (used as weight vectors for accent control)
                 one_hots = torch.zeros(languages.size(0), languages.size(0), hp.language_number).zero_()
-                languages = one_hots.scatter_(2, languages.data, 1)
+                languages = one_hots.scatter_(2, languages.reshape(1, 1, -1), 1)
         else:
             sorted_idxs = range(batch_size)
         
