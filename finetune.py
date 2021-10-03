@@ -226,6 +226,7 @@ if __name__ == '__main__':
     hp.perfect_sampling = False
     hp.batch_size = 1
     hp.epochs = 10
+    hp.dataset = 'finetuning'
 
 
     # load dataset
