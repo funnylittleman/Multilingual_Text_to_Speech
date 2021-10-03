@@ -227,6 +227,9 @@ if __name__ == '__main__':
     hp.batch_size = 1
     hp.epochs = 10
     hp.dataset = 'finetuning'
+    print(hp.speaker_number)
+    print(hp.speaker_embedding_dimension)
+    print(hp.unique_speakers)
 
 
     # load dataset
@@ -304,8 +307,15 @@ if __name__ == '__main__':
     Logger.initialize(log_dir, args.flush_seconds)
 
     # training loop
+
+    print('Pretraining:')
+    print(hp.speaker_number)
+    print(hp.speaker_embedding_dimension)
+    print(hp.unique_speakers)
+
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
+        print(f'Epoch {epoch}')
         train(args.logging_start, epoch, train_data, model, criterion, optimizer)  
         if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
