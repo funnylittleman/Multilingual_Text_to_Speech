@@ -158,20 +158,16 @@ class Decoder(torch.nn.Module):
 
         # obtain speaker and language embeddings (or a dummy tensor)
         if hp.multi_speaker and self._speaker_embedding is not None:
-            print('hp.multi_speaker and self._speaker_embedding is not None')
             encoded_input = self._add_conditional_embedding(encoded_input, self._speaker_embedding, speaker)
         if hp.multi_language and self._language_embedding is not None:
-            print('hp.multi_language and self._language_embedding is not None')
             encoded_input = self._add_conditional_embedding(encoded_input, self._language_embedding, language)
         
         # attention and decoder states initialization  
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
-        print('context shape', context.shape)
         h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
         # prepare some inference or train specific variables (teacher forcing, max. predicted length)
         frame = torch.zeros(batch_size, self._output_dim, device=input_device) 
-        print('frame shape', frame.shape)
         if not inference:
             target = self._target_init(target, batch_size)  
             teacher = torch.rand([max_frames], device=input_device) > (1 - teacher_forcing_ratio)
@@ -213,6 +209,9 @@ class Decoder(torch.nn.Module):
                 stop_frames -= 1
                 if stop_frames == 0:
                     return spectrogram[:,:i+1], stop_tokens[:,:i+1].squeeze(2), alignments[:,:i+1]
+        print('frame shape', spectrogram.shape)
+        print('stop_tokens shape', stop_tokens.shape)
+        print('alignments shape', alignments.shape)
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 
