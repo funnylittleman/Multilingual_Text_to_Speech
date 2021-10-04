@@ -87,7 +87,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         optimizer.step()   
         
         # log training progress
-        if epoch >= logging_start_epoch:
+        # if epoch >= logging_start_epoch:
             # Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
 
         # update criterion states (params and decay of the loss and so on ...)
