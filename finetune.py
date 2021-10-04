@@ -295,7 +295,7 @@ if __name__ == '__main__':
     prenet_params = list(model._prenet.parameters())
     embedding_params = list(model._embedding.parameters())
     attention_params = list(model._attention.parameters())
-    reversal_classifier = []
+    reversal_classifier_params = []
     if hp.reversal_classifier:
         reversal_classifier_params += list(model._reversal_classifier.parameters())   
     optimizer = torch.optim.Adam([
