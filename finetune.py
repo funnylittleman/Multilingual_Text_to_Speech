@@ -235,10 +235,10 @@ if __name__ == '__main__':
         checkpoint_state['parameters']['speaker_number'] += 1
         hp.load_state_dict(checkpoint_state['parameters'])      
 
-    # load hyperparameters
-    if args.hyper_parameters is not None:
-        hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
-        hp.load(hp_path)
+#     # load hyperparameters
+#     if args.hyper_parameters is not None:
+#         hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
+#         hp.load(hp_path)
         
     # For finetuning
     hp.dataset = 'finetuning'
@@ -331,8 +331,7 @@ if __name__ == '__main__':
             scheduler.load_state_dict(checkpoint_state['scheduler'])
         if 'criterion' in checkpoint_state.keys() and checkpoint_state['criterion'] is not None:
             criterion.load_state_dict(checkpoint_state['criterion'])
-            
-    # For finetuning
+           
         
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
@@ -343,8 +342,13 @@ if __name__ == '__main__':
     # For finetuning
     print('Pretraining:')
     print(hp.speaker_number)
-    print(hp.speaker_embedding_dimension)
     print(hp.unique_speakers)
+    print(hp.dataset,
+            hp.batch_size,
+            hp.epochs,
+            hp.checkpoint_each_epochs,
+            hp.learning_rate,
+            hp.perfect_sampling)
 
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
