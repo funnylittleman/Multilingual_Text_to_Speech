@@ -354,6 +354,9 @@ if __name__ == '__main__':
             hp.checkpoint_each_epochs,
             hp.learning_rate,
             hp.perfect_sampling)
+    
+    for param in model.parameters():
+        param.requires_grad = False
 
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
