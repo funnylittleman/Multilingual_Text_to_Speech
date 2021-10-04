@@ -154,11 +154,6 @@ class Decoder(torch.nn.Module):
         max_frames = self._max_frames if inference else target.size(2) 
         input_device = encoded_input.device
 
-        print('self._speaker_embedding\n', self._speaker_embedding)
-        print('speaker\n', speaker)
-        print('self._language_embedding\n', self._language_embedding)
-        print('language\n', language)
-
         # obtain speaker and language embeddings (or a dummy tensor)
         if hp.multi_speaker and self._speaker_embedding is not None:
             encoded_input = self._add_conditional_embedding(encoded_input, self._speaker_embedding, speaker)

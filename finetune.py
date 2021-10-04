@@ -14,6 +14,8 @@ from utils.logging import Logger
 from utils.samplers import RandomImbalancedSampler, PerfectBatchSampler
 from utils import lengths_to_mask, to_gpu
 
+from tqdm import tqdm
+
 
 def cos_decay(global_step, decay_steps):
     """Cosine decay function
@@ -46,7 +48,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
     done, start_time = 0, time.time()
 
     # loop through epoch batches
-    for i, batch in enumerate(data):     
+    for i, batch in tqdm(enumerate(data), total=len(data)):     
 
         global_step = done + epoch * len(data)
         optimizer.zero_grad() 
@@ -114,7 +116,7 @@ def evaluate(epoch, data, model, criterion):
 
     # loop through epoch batches
     with torch.no_grad():  
-        for i, batch in enumerate(data):
+        for i, batch in tqdm(enumerate(data), total=len(data)):
 
             # parse batch
             batch = list(map(to_gpu, batch))
@@ -225,11 +227,8 @@ if __name__ == '__main__':
     # For finetuning
     hp.perfect_sampling = False
     hp.batch_size = 1
-    hp.epochs = 10
+    hp.epochs = 5
     hp.dataset = 'finetuning'
-    print(hp.speaker_number)
-    print(hp.speaker_embedding_dimension)
-    print(hp.unique_speakers)
 
 
     # load dataset
@@ -250,7 +249,10 @@ if __name__ == '__main__':
 
     # find out number of unique speakers and languages
     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+
+    # For finetuning
     hp.speaker_number = 92
+
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     # save all found speakers to hyper parameters
     if hp.multi_speaker and not args.checkpoint:
@@ -309,6 +311,7 @@ if __name__ == '__main__':
 
     # training loop
 
+    # For finetuning
     print('Pretraining:')
     print(hp.speaker_number)
     print(hp.speaker_embedding_dimension)
@@ -316,10 +319,11 @@ if __name__ == '__main__':
 
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
-        print(f'Epoch {epoch}')
+        print(f'Epoch {epoch} training')
         train(args.logging_start, epoch, train_data, model, criterion, optimizer)  
         if hp.learning_rate_decay_start - hp.learning_rate_decay_each < epoch * len(train_data):
             scheduler.step()
+        print(f'Epoch {epoch} evaluate')
         eval_loss = evaluate(epoch, eval_data, model, criterion)   
         if (epoch + 1) % hp.checkpoint_each_epochs == 0:
             # save checkpoint together with hyper-parameters, optimizer and scheduler states
