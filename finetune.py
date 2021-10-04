@@ -88,7 +88,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
         
         # log training progress
         if epoch >= logging_start_epoch:
-            Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
+            # Logger.training(global_step, batch_losses, gradient, learning_rate, time.time() - start_time, cla) 
 
         # update criterion states (params and decay of the loss and so on ...)
         criterion.update_states()
@@ -167,7 +167,7 @@ def evaluate(epoch, data, model, criterion):
         eval_losses[k] /= len(data)
 
     # log evaluation
-    Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
+    # Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
     
     return sum(eval_losses.values())
 
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     # For finetuning
     hp.perfect_sampling = False
     hp.batch_size = 1
-    hp.epochs = 5
+    hp.epochs = 50
     hp.dataset = 'finetuning'
 
 
