@@ -290,31 +290,31 @@ if __name__ == '__main__':
     else: model = Tacotron()
 
     # instantiate optimizer and scheduler
-    encoder_params = list(model._encoder.parameters())
-    decoder_params = list(model._decoder.parameters()) 
-    postnet_params = list(model._postnet.parameters()) 
-    prenet_params = list(model._prenet.parameters())
-    embedding_params = list(model._embedding.parameters())
-    attention_params = list(model._attention.parameters())
-    
-    decoder_params += postnet_params + embedding_params + attention_params + prenet_params
-    reversal_classifier_params = []
-    if hp.reversal_classifier:
-        reversal_classifier_params += list(model._reversal_classifier.parameters())   
-#     optimizer = torch.optim.Adam([
-#         {'params': encoder_params, 'lr': args.encoder_lr}, 
-#         {'params': decoder_params, 'lr': args.decoder_lr},
-#         {'params': postnet_params, 'lr': args.postnet_lr},
-#         {'params': prenet_params, 'lr': args.prenet_lr},
-#         {'params': embedding_params, 'lr': args.embedding_lr},
-#         {'params': attention_params, 'lr': args.attention_lr},
-#         {'params': reversal_classifier_params, 'lr': args.reversal_classifier_lr},
-#     ], lr=args.learning_rate, weight_decay=hp.weight_decay)
-    optimizer = torch.optim.Adam([
-        {'params': encoder_params, 'lr': args.encoder_lr}, 
-        {'params': decoder_params, 'lr': args.decoder_lr}, 
-        {'params': reversal_classifier_params, 'lr': args.reversal_classifier_lr}
-    ], lr=args.learning_rate, weight_decay=hp.weight_decay)
+#     encoder_params = list(model._encoder.parameters())
+#     decoder_params = list(model._decoder.parameters()) 
+#     postnet_params = list(model._postnet.parameters()) 
+#     prenet_params = list(model._prenet.parameters())
+#     embedding_params = list(model._embedding.parameters())
+#     attention_params = list(model._attention.parameters())
+#     decoder_params += postnet_params + embedding_params + attention_params + prenet_params
+#     reversal_classifier_params = []
+#     if hp.reversal_classifier:
+#         reversal_classifier_params += list(model._reversal_classifier.parameters())   
+        
+    hp.learning_rate_encoder = args.encoder_lr
+    hp.learning_rate = args.learning_rate
+        
+    optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    if hp.encoder_optimizer:
+        encoder_params = list(model._encoder.parameters())
+        other_params = list(model._decoder.parameters()) + list(model._postnet.parameters()) + list(model._prenet.parameters()) + \
+                       list(model._embedding.parameters()) + list(model._attention.parameters())
+        if hp.reversal_classifier:
+            other_params += list(model._reversal_classifier.parameters())   
+        optimizer = torch.optim.Adam([
+            {'params': other_params},
+            {'params': encoder_params, 'lr': hp.learning_rate_encoder}
+        ], lr=hp.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
 
