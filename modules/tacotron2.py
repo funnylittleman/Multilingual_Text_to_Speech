@@ -150,22 +150,28 @@ class Decoder(torch.nn.Module):
 
         batch_size = encoded_input.size(0)
         max_length = encoded_input.size(1)
+        print('max_length', max_length)
         inference = target is None
         max_frames = self._max_frames if inference else target.size(2) 
+        print('max_frames', max_frames)
         input_device = encoded_input.device
 
         # obtain speaker and language embeddings (or a dummy tensor)
         if hp.multi_speaker and self._speaker_embedding is not None:
+            print('hp.multi_speaker and self._speaker_embedding is not None')
             encoded_input = self._add_conditional_embedding(encoded_input, self._speaker_embedding, speaker)
         if hp.multi_language and self._language_embedding is not None:
+            print('hp.multi_language and self._language_embedding is not None')
             encoded_input = self._add_conditional_embedding(encoded_input, self._language_embedding, language)
         
         # attention and decoder states initialization  
         context = self._attention.reset(encoded_input, batch_size, max_length, input_device)
+        print('context shape', context.shape)
         h_att, c_att, h_gen, c_gen = self._decoder_init(batch_size, input_device)      
         
         # prepare some inference or train specific variables (teacher forcing, max. predicted length)
         frame = torch.zeros(batch_size, self._output_dim, device=input_device) 
+        print('frame shape', frame.shape)
         if not inference:
             target = self._target_init(target, batch_size)  
             teacher = torch.rand([max_frames], device=input_device) > (1 - teacher_forcing_ratio)
@@ -199,6 +205,7 @@ class Decoder(torch.nn.Module):
             
             # stop decoding if predicted (just during inference)
             if inference and torch.sigmoid(stop_logits).ge(0.5):
+                print('Stoped at', i)
                 if stop_frames == -1: 
                     stop_frames = hp.stop_frames
                     continue
@@ -387,9 +394,9 @@ class Tacotron(torch.nn.Module):
     def inference(self, text, speaker=None, language=None):
         # pretend having a batch of size 1
         text.unsqueeze_(0)
-        print('text\t', text)
-        print('speaker\t', speaker)
-        print('language\t', language)
+#         print('text\t', text)
+#         print('speaker\t', speaker)
+#         print('language\t', language)
 
         if speaker is not None and speaker.dim() == 1:
             speaker = speaker.unsqueeze(1).expand((-1, text.size(1)))
@@ -398,9 +405,9 @@ class Tacotron(torch.nn.Module):
         
         # encode input
         embedded = self._embedding(text)
-        print('embedded shape\t', embedded.shape)
+#         print('embedded shape\t', embedded.shape)
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
-        print('encoded shape\t', encoded.shape)
+#         print('encoded shape\t', encoded.shape)
         
         # decode with respect to speaker and language embeddings
         if language is not None and language.dim() == 3:
@@ -410,9 +417,9 @@ class Tacotron(torch.nn.Module):
 
         # post process generated spectrogram
         prediction = prediction.transpose(1,2)
-        print('prediction shape\t', prediction.shape)
+#         print('prediction shape\t', prediction.shape)
         post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
-        print('post_prediction shape\t', post_prediction.shape)
+#         print('post_prediction shape\t', post_prediction.shape)
         return post_prediction.squeeze(0)
 
 
