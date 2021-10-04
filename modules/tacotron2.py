@@ -387,6 +387,9 @@ class Tacotron(torch.nn.Module):
     def inference(self, text, speaker=None, language=None):
         # pretend having a batch of size 1
         text.unsqueeze_(0)
+        print('text\t', text)
+        print('speaker\t', speaker)
+        print('language\t', language)
 
         if speaker is not None and speaker.dim() == 1:
             speaker = speaker.unsqueeze(1).expand((-1, text.size(1)))
@@ -395,16 +398,21 @@ class Tacotron(torch.nn.Module):
         
         # encode input
         embedded = self._embedding(text)
+        print('embedded shape\t', embedded.shape)
         encoded = self._encoder(embedded, torch.LongTensor([text.size(1)]), language)
+        print('encoded shape\t', encoded.shape)
         
         # decode with respect to speaker and language embeddings
         if language is not None and language.dim() == 3:
             language = torch.argmax(language, dim=2) # convert one-hot into indices
         prediction = self._decoder.inference(encoded, speaker, language)
+        print('prediction shape\t', prediction.shape)
 
         # post process generated spectrogram
         prediction = prediction.transpose(1,2)
+        print('prediction shape\t', prediction.shape)
         post_prediction = self._postnet(prediction, torch.LongTensor([prediction.size(2)]))
+        print('post_prediction shape\t', post_prediction.shape)
         return post_prediction.squeeze(0)
 
 
