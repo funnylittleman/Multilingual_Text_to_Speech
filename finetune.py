@@ -229,6 +229,7 @@ if __name__ == '__main__':
     hp.batch_size = 1
     hp.epochs = 50
     hp.dataset = 'finetuning'
+    hp.checkpoint_each_epochs = 5
 
 
     # load dataset
@@ -337,3 +338,4 @@ if __name__ == '__main__':
                 'criterion': criterion.state_dict()
             }
             torch.save(state_dict, checkpoint_file)
+            print('Checkpoint saved')
