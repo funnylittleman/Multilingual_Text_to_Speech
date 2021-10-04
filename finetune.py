@@ -246,6 +246,7 @@ if __name__ == '__main__':
     hp.epochs = args.epochs
     hp.checkpoint_each_epochs = args.checkpoint_each_epochs
     hp.learning_rate = args.learning_rate
+    hp.perfect_sampling = False
     
 
     # load dataset
