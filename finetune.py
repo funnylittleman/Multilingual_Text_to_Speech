@@ -44,6 +44,7 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
 
     # initialize counters, etc.
     learning_rate = optimizer.param_groups[0]['lr']
+    print('learning_rate', learning_rate)
     cla = 0
     done, start_time = 0, time.time()
 
