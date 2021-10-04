@@ -83,9 +83,9 @@ def train(logging_start_epoch, epoch, data, model, criterion, optimizer):
             cla = torch.sum(matches).item() / torch.sum(input_mask).item()
 
         # comptute gradients and make a step
-        loss.backward()      
-        gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
-        optimizer.step()   
+#         loss.backward()      
+#         gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), hp.gradient_clipping)
+#         optimizer.step()   
         
         # log training progress
         # if epoch >= logging_start_epoch:
