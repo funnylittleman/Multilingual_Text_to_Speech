@@ -168,8 +168,7 @@ def evaluate(epoch, data, model, criterion):
 
     # log evaluation
     # Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
-    for x in (epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla):
-        print(f'{x.__name__}:\t{x}')
+    print('eval_losses\t', eval_losses)
     
     return sum(eval_losses.values())
 
