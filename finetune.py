@@ -168,6 +168,8 @@ def evaluate(epoch, data, model, criterion):
 
     # log evaluation
     # Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
+    for x in (epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla):
+        print(f'{x.__name__}:\t{x}')
     
     return sum(eval_losses.values())
 
@@ -223,15 +225,6 @@ if __name__ == '__main__':
         hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
         hp.load(hp_path)
 
-
-    # For finetuning
-    hp.perfect_sampling = False
-    hp.batch_size = 1
-    hp.epochs = 50
-    hp.dataset = 'finetuning'
-    hp.checkpoint_each_epochs = 5
-
-
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset), known_unique_speakers=hp.unique_speakers)
 
@@ -249,10 +242,7 @@ if __name__ == '__main__':
                                collate_fn=TextToSpeechCollate(True), num_workers=args.loader_workers)
 
     # find out number of unique speakers and languages
-    hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
-
-    # For finetuning
-    hp.speaker_number = 92
+#     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
 
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     # save all found speakers to hyper parameters
@@ -305,7 +295,12 @@ if __name__ == '__main__':
             scheduler.load_state_dict(checkpoint_state['scheduler'])
         if 'criterion' in checkpoint_state.keys() and checkpoint_state['criterion'] is not None:
             criterion.load_state_dict(checkpoint_state['criterion'])
-
+            
+    # load again hyperparameters for finetuning 
+    if args.hyper_parameters is not None:
+        hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
+        hp.load(hp_path)
+        
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
     Logger.initialize(log_dir, args.flush_seconds)
