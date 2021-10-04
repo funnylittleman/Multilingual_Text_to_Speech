@@ -246,14 +246,12 @@ if __name__ == '__main__':
     hp.batch_size = args.batch_size
     hp.epochs = args.epochs
     hp.checkpoint_each_epochs = args.checkpoint_each_epochs
-    hp.learning_rate = args.learning_rate
-    hp.perfect_sampling = False
     
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset), known_unique_speakers=hp.unique_speakers)
 
-    if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling:
+    if hp.multi_language and hp.balanced_sampling and hp.perfect_sampling and 0:
         dp_devices = args.max_gpus if hp.parallelization and torch.cuda.device_count() > 1 else 1 
         train_sampler = PerfectBatchSampler(dataset.train, hp.languages, hp.batch_size, data_parallel_devices=dp_devices, shuffle=True, drop_last=True)
         train_data = DataLoader(dataset.train, batch_sampler=train_sampler, collate_fn=TextToSpeechCollate(False), num_workers=args.loader_workers)
@@ -273,8 +271,8 @@ if __name__ == '__main__':
 
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     # save all found speakers to hyper parameters
-    if hp.multi_speaker and not args.checkpoint:
-        hp.unique_speakers = dataset.train.unique_speakers
+#     if hp.multi_speaker and not args.checkpoint:
+#         hp.unique_speakers = dataset.train.unique_speakers
 
     # acquire dataset-dependent constants, these should probably be the same while going from checkpoint
     if not args.checkpoint:
@@ -302,10 +300,10 @@ if __name__ == '__main__':
 #     if hp.reversal_classifier:
 #         reversal_classifier_params += list(model._reversal_classifier.parameters())   
         
-    hp.learning_rate_encoder = args.encoder_lr
-    hp.learning_rate = args.learning_rate
+#     hp.learning_rate_encoder = args.encoder_lr
+#     hp.learning_rate = args.learning_rate
         
-    optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=hp.weight_decay)
     if hp.encoder_optimizer:
         encoder_params = list(model._encoder.parameters())
         other_params = list(model._decoder.parameters()) + list(model._postnet.parameters()) + list(model._prenet.parameters()) + \
@@ -314,8 +312,8 @@ if __name__ == '__main__':
             other_params += list(model._reversal_classifier.parameters())   
         optimizer = torch.optim.Adam([
             {'params': other_params},
-            {'params': encoder_params, 'lr': hp.learning_rate_encoder}
-        ], lr=hp.learning_rate, weight_decay=hp.weight_decay)
+            {'params': encoder_params, 'lr': args.encoder_lr}
+        ], lr=args.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
 
@@ -339,8 +337,8 @@ if __name__ == '__main__':
            
         
     # initialize logger
-    log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
-    Logger.initialize(log_dir, args.flush_seconds)
+#     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
+#     Logger.initialize(log_dir, args.flush_seconds)
 
     # training loop
 
@@ -355,8 +353,8 @@ if __name__ == '__main__':
             hp.learning_rate,
             hp.perfect_sampling)
     
-    for param in model.parameters():
-        param.requires_grad = False
+#     for param in model.parameters():
+#         param.requires_grad = False
 
     best_eval = float('inf')
     for epoch in range(initial_epoch, hp.epochs):
