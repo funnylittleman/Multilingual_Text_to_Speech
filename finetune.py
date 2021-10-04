@@ -199,6 +199,12 @@ if __name__ == '__main__':
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
     parser.add_argument('--loader_workers', type=int, default=2, help="Number of subprocesses to use for data loading.")
     
+    
+    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs.")
+    parser.add_argument('--batch_size', type=int, default=1, help="batch_size")
+    parser.add_argument('--checkpoint_each_epochs', type=int, default=5, help="checkpoint_each_epochs")
+    
+    parser.add_argument('--learning_rate', type=float, default=1e-7, help="lr")
     parser.add_argument('--encoder_lr', type=float, default=1e-7, help="lr")
     parser.add_argument('--decoder_lr', type=float, default=1e-7, help="lr")
     parser.add_argument('--postnet_lr', type=float, default=1e-7, help="lr")
@@ -236,7 +242,7 @@ if __name__ == '__main__':
         
     # For finetuning
     hp.dataset = 'finetuning'
-    hp.batch_size = batch_size
+    hp.batch_size = args.batch_size
     hp.epochs = args.epochs
     hp.checkpoint_each_epochs = args.checkpoint_each_epochs
     hp.learning_rate = args.learning_rate
