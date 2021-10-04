@@ -206,6 +206,7 @@ class Decoder(torch.nn.Module):
             # stop decoding if predicted (just during inference)
             if inference and torch.sigmoid(stop_logits).ge(0.5):
                 print('Stoped at', i)
+                print('hp.stop_frames', hp.stop_frames)
                 if stop_frames == -1: 
                     stop_frames = hp.stop_frames
                     continue
