@@ -168,7 +168,8 @@ def evaluate(epoch, data, model, criterion):
 
     # log evaluation
     # Logger.evaluation(epoch+1, eval_losses, mcd, src_len, trg_len, src, post_trg, post_pred, post_pred_0, stop_pred_probs, stop_trg, alignment_0, cla)
-    print('eval_losses\t', eval_losses)
+    for key in eval_losses.keys():
+        print(f'{key} =\t{eval_losses[key]}')
     
     return sum(eval_losses.values())
 
@@ -197,6 +198,15 @@ if __name__ == '__main__':
     parser.add_argument('--logging_start', type=int, default=1, help="First epoch to be logged")
     parser.add_argument('--max_gpus', type=int, default=2, help="Maximal number of GPUs of the local machine to use.")
     parser.add_argument('--loader_workers', type=int, default=2, help="Number of subprocesses to use for data loading.")
+    
+    parser.add_argument('--encoder_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--decoder_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--postnet_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--prenet_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--embedding_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--attention_lr', type=float, default=1e-7, help="lr")
+    parser.add_argument('--reversal_classifier_lr', type=float, default=1e-7, help="lr")
+    
     args = parser.parse_args()
 
     # set up seeds and the target torch device
@@ -223,6 +233,14 @@ if __name__ == '__main__':
     if args.hyper_parameters is not None:
         hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
         hp.load(hp_path)
+        
+    # For finetuning
+    hp.dataset = 'finetuning'
+    hp.batch_size = batch_size
+    hp.epochs = args.epochs
+    hp.checkpoint_each_epochs = args.checkpoint_each_epochs
+    hp.learning_rate = args.learning_rate
+    
 
     # load dataset
     dataset = TextToSpeechDatasetCollection(os.path.join(args.data_root, hp.dataset), known_unique_speakers=hp.unique_speakers)
@@ -241,7 +259,9 @@ if __name__ == '__main__':
                                collate_fn=TextToSpeechCollate(True), num_workers=args.loader_workers)
 
     # find out number of unique speakers and languages
-#     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()
+#     hp.speaker_number = 0 if not hp.multi_speaker else dataset.train.get_num_speakers()    
+    # For finetuning
+    hp.speaker_number = 92
 
     hp.language_number = 0 if not hp.multi_language else len(hp.languages)
     # save all found speakers to hyper parameters
@@ -263,17 +283,24 @@ if __name__ == '__main__':
     else: model = Tacotron()
 
     # instantiate optimizer and scheduler
-    optimizer = torch.optim.Adam(model.parameters(), lr=hp.learning_rate, weight_decay=hp.weight_decay)
-    if hp.encoder_optimizer:
-        encoder_params = list(model._encoder.parameters())
-        other_params = list(model._decoder.parameters()) + list(model._postnet.parameters()) + list(model._prenet.parameters()) + \
-                       list(model._embedding.parameters()) + list(model._attention.parameters())
-        if hp.reversal_classifier:
-            other_params += list(model._reversal_classifier.parameters())   
-        optimizer = torch.optim.Adam([
-            {'params': other_params},
-            {'params': encoder_params, 'lr': hp.learning_rate_encoder}
-        ], lr=hp.learning_rate, weight_decay=hp.weight_decay)
+    encoder_params = list(model._encoder.parameters())
+    decoder_params = list(model._decoder.parameters()) 
+    postnet_params = list(model._postnet.parameters()) 
+    prenet_params = list(model._prenet.parameters())
+    embedding_params = list(model._embedding.parameters())
+    attention_params = list(model._attention.parameters())
+    reversal_classifier = []
+    if hp.reversal_classifier:
+        reversal_classifier_params += list(model._reversal_classifier.parameters())   
+    optimizer = torch.optim.Adam([
+        {'params': encoder_params, 'lr': args.encoder_lr}, 
+        {'params': decoder_params, 'lr': args.decoder_lr},
+        {'params': postnet_params, 'lr': args.postnet_lr},
+        {'params': prenet_params, 'lr': args.prenet_lr},
+        {'params': embedding_params, 'lr': args.embedding_lr},
+        {'params': attention_params, 'lr': args.attention_lr},
+        {'params': reversal_classifier_params, 'lr': args.reversal_classifier_lr},
+    ], lr=args.learning_rate, weight_decay=hp.weight_decay)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, hp.learning_rate_decay_each // len(train_data), gamma=hp.learning_rate_decay)
     criterion = TacotronLoss(hp.guided_attention_steps, hp.guided_attention_toleration, hp.guided_attention_gain)
 
@@ -295,10 +322,7 @@ if __name__ == '__main__':
         if 'criterion' in checkpoint_state.keys() and checkpoint_state['criterion'] is not None:
             criterion.load_state_dict(checkpoint_state['criterion'])
             
-    # load again hyperparameters for finetuning 
-    if args.hyper_parameters is not None:
-        hp_path = os.path.join(args.base_directory, 'params', f'{args.hyper_parameters}.json')
-        hp.load(hp_path)
+    # For finetuning
         
     # initialize logger
     log_dir = os.path.join(args.base_directory, "logs", f'{hp.version}-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
