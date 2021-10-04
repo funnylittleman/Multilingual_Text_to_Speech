@@ -7,6 +7,6 @@
 	"dataset": "finetuning",
 	"learning_rate": 0.000001,
 	"learning_rate_decay_each": 10000,
-	"learning_rate_decay_start": 10000],
+	"learning_rate_decay_start": 10000,
 	"speaker_number": 92 
 }
