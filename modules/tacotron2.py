@@ -150,10 +150,8 @@ class Decoder(torch.nn.Module):
 
         batch_size = encoded_input.size(0)
         max_length = encoded_input.size(1)
-        print('max_length', max_length)
         inference = target is None
         max_frames = self._max_frames if inference else target.size(2) 
-        print('max_frames', max_frames)
         input_device = encoded_input.device
 
         # obtain speaker and language embeddings (or a dummy tensor)
@@ -201,17 +199,12 @@ class Decoder(torch.nn.Module):
             
             # stop decoding if predicted (just during inference)
             if inference and torch.sigmoid(stop_logits).ge(0.5):
-                print('Stoped at', i)
-                print('hp.stop_frames', hp.stop_frames)
                 if stop_frames == -1: 
                     stop_frames = hp.stop_frames
                     continue
                 stop_frames -= 1
                 if stop_frames == 0:
                     return spectrogram[:,:i+1], stop_tokens[:,:i+1].squeeze(2), alignments[:,:i+1]
-        print('frame shape', spectrogram.shape)
-        print('stop_tokens shape', stop_tokens.shape)
-        print('alignments shape', alignments.shape)
         
         return spectrogram, stop_tokens.squeeze(2), alignments
 
@@ -413,7 +406,6 @@ class Tacotron(torch.nn.Module):
         if language is not None and language.dim() == 3:
             language = torch.argmax(language, dim=2) # convert one-hot into indices
         prediction = self._decoder.inference(encoded, speaker, language)
-        print('prediction shape\t', prediction.shape)
 
         # post process generated spectrogram
         prediction = prediction.transpose(1,2)
