@@ -32,9 +32,9 @@ if __name__ == '__main__':
     files_to_solve = [
         # (args.css10_directory, "train.txt"),
         # (args.css10_directory, "val.txt"),
-        # (args.css_comvoi_directory, "train.txt"),
-        # (args.css_comvoi_directory, "val.txt"),
-        (args.comvoi_directory, "all.txt"),
+        (args.css_comvoi_directory, "train.txt"),
+        (args.css_comvoi_directory, "val.txt"),
+        # (args.comvoi_directory, "all.txt"),
     ]
 
     spectrogram_dirs = [os.path.join(args.comvoi_directory, 'spectrograms'), 
@@ -56,6 +56,8 @@ if __name__ == '__main__':
 
         with open(os.path.join(d, fs), 'w', encoding='utf-8') as f:
             for i in m:
+                if 'css10' in i or (not 'comvoi_clean' in i):
+                    continue
                 idx, s, l, a, _, _, raw_text, ph = i
                 spec_name = idx + '.npy'      
                 audio_path = os.path.join(d, a)       
