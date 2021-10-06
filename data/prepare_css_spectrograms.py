@@ -34,8 +34,8 @@ if __name__ == '__main__':
         # (args.css10_directory, "val.txt"),
         # (args.css_comvoi_directory, "train.txt"),
         # (args.css_comvoi_directory, "val.txt"),
-        ("train.txt"),
-        ("val.txt"),
+        (args.css_comvoi_directory, "train.txt"),
+        (args.css_comvoi_directory, "val.txt"),
         # (args.comvoi_directory, "all.txt"),
     ]
 
