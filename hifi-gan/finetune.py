@@ -82,7 +82,7 @@ def train(rank, a, h):
 
     train_loader = DataLoader(trainset, num_workers=h.num_workers, shuffle=False,
                               sampler=train_sampler,
-                              batch_size=hp.batch_size,
+                              batch_size=h.batch_size,
                               pin_memory=True,
                               drop_last=False)
 
@@ -114,9 +114,9 @@ def train(rank, a, h):
             if rank == 0:
                 start_b = time.time()
             x, y, _, y_mel = batch
-            x = torch.autograd.Variable(x.to(device, non_blocking=True))
-            y = torch.autograd.Variable(y.to(device, non_blocking=True))
-            y_mel = torch.autograd.Variable(y_mel.to(device, non_blocking=True))
+            x = torch.autograd.Variable(x.float().to(device, non_blocking=True))
+            y = torch.autograd.Variable(y.float().to(device, non_blocking=True))
+            y_mel = torch.autograd.Variable(y_mel.float().to(device, non_blocking=True))
             y = y.unsqueeze(1)
 
             y_g_hat = generator(x)
