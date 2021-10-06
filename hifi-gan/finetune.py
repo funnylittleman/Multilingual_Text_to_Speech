@@ -82,9 +82,9 @@ def train(rank, a, h):
 
     train_loader = DataLoader(trainset, num_workers=h.num_workers, shuffle=False,
                               sampler=train_sampler,
-                              batch_size=h.batch_size,
+                              batch_size=hp.batch_size,
                               pin_memory=True,
-                              drop_last=True)
+                              drop_last=False)
 
     if rank == 0:
         validset = MelDataset(validation_filelist, h.segment_size, h.n_fft, h.num_mels,
@@ -95,7 +95,7 @@ def train(rank, a, h):
                                        sampler=None,
                                        batch_size=1,
                                        pin_memory=True,
-                                       drop_last=True)
+                                       drop_last=False)
 
         sw = SummaryWriter(os.path.join(a.checkpoint_path, 'logs'))
 
@@ -253,6 +253,7 @@ def main():
     build_env(a.config, 'config.json', a.checkpoint_path)
 
     torch.manual_seed(h.seed)
+    h.batch_size = 1
     if torch.cuda.is_available():
         torch.cuda.manual_seed(h.seed)
         h.num_gpus = torch.cuda.device_count()
