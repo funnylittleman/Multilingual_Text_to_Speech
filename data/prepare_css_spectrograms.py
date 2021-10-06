@@ -59,7 +59,7 @@ if __name__ == '__main__':
         with open(os.path.join(d, fs), 'w', encoding='utf-8') as f:
             for i in m:
                 idx, s, l, a, _, _, raw_text, ph = i
-                if 'css' in a or (not 'comvoi_clean' in a):
+                if 'css20' in a or (not 'comvoi_clean' in a):
                     continue
                 spec_name = idx + '.npy'      
                 audio_path = os.path.join(d, a)       
