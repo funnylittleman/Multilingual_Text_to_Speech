@@ -56,9 +56,9 @@ if __name__ == '__main__':
 
         with open(os.path.join(d, fs), 'w', encoding='utf-8') as f:
             for i in m:
-                if 'css10' in i or (not 'comvoi_clean' in i):
-                    continue
                 idx, s, l, a, _, _, raw_text, ph = i
+                if 'css10' in a or (not 'comvoi_clean' in a):
+                    continue
                 spec_name = idx + '.npy'      
                 audio_path = os.path.join(d, a)       
                 audio_data = audio.load(audio_path)
