@@ -4,6 +4,7 @@ import itertools
 import os
 import time
 import argparse
+import shutil
 import json
 import torch
 import torch.nn.functional as F
@@ -170,6 +171,8 @@ def train(rank, a, h):
                     checkpoint_path = "{}/g_finetuned".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path,
                                     {'generator': (generator.module if h.num_gpus > 1 else generator).state_dict()})
+                    if os.path.exists('/content/drive/My Drive/hifigan/'):
+                        shutil.copy(checkpoint_path, '/content/drive/My Drive/hifigan/g_finetuned')
                     checkpoint_path = "{}/do_finetuned".format(a.checkpoint_path, steps)
                     save_checkpoint(checkpoint_path, 
                                     {'mpd': (mpd.module if h.num_gpus > 1
@@ -178,6 +181,8 @@ def train(rank, a, h):
                                                          else msd).state_dict(),
                                      'optim_g': optim_g.state_dict(), 'optim_d': optim_d.state_dict(), 'steps': steps,
                                      'epoch': epoch})
+                    if os.path.exists('/content/drive/My Drive/hifigan/'):
+                        shutil.copy(checkpoint_path, '/content/drive/My Drive/hifigan/do_finetuned')
 
                 # Tensorboard summary logging
                 if steps % a.summary_interval == 0:
@@ -246,6 +251,14 @@ def main():
     parser.add_argument('--fine_tuning', default=True, type=bool)
 
     a = parser.parse_args()
+
+
+    if os.path.exists('/content/drive/My Drive/hifigan/g_finetuned'):
+        shutil.remove(os.path.join('.', a.checkpoint_path, 'g_02500000'))
+        shutil.copy('/content/drive/My Drive/hifigan/g_finetuned', os.path.join('.', a.checkpoint_path, 'g_02500000'))
+    if os.path.exists('/content/drive/My Drive/hifigan/do_finetuned'):
+        shutil.remove(os.path.join('.', a.checkpoint_path, 'do_02500000'))
+        shutil.copy('/content/drive/My Drive/hifigan/do_finetuned', os.path.join('.', a.checkpoint_path, 'do_02500000'))
 
     with open(a.config) as f:
         data = f.read()
