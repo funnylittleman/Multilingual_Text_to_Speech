@@ -1,11 +1,14 @@
 import sys
 import os
 import numpy as np
+import shutil
 
 sys.path.insert(0, "../")
 
 from utils import audio
 from params.params import Params as hp
+
+DRIVE = '/content/drive/MyDrive/comvoi/'
 
 
 if __name__ == '__main__':
@@ -63,6 +66,7 @@ if __name__ == '__main__':
                     continue
                 spec_name = idx + '.npy'      
                 audio_path = os.path.join(d, a)       
+                shutil.copy(audio_path, os.path.join(DRIVE, "wavs", idx + '.wav'))
                 audio_data = audio.load(audio_path)
 
                 splitted_a = a.split("/")
@@ -74,10 +78,15 @@ if __name__ == '__main__':
                     lin_path_partial = os.path.join("linear_spectrograms", spec_name)
 
                 mel_path = os.path.join(d, mel_path_partial)
+                mel_path = os.path.join(DRIVE, "spectrograms", spec_name)
                 if not os.path.exists(mel_path):
                     np.save(mel_path, audio.spectrogram(audio_data, True))
                 lin_path = os.path.join(d, lin_path_partial)
+                lin_path = os.path.join(DRIVE, "linear_spectrograms", spec_name)
                 if not os.path.exists(lin_path):
                     np.save(lin_path, audio.spectrogram(audio_data, False))
+
+                with open(os.path.join(DRIVE, 'all.txt'), 'a') as allf:
+                    allf.write(f'{idx}|{raw_text}')
 
                 print(f'{idx}|{s}|{l}|{a}|{mel_path_partial}|{lin_path_partial}|{raw_text}|{ph}', file=f)
