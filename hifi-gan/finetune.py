@@ -254,10 +254,10 @@ def main():
 
 
     if os.path.exists('/content/drive/My Drive/hifigan/g_finetuned'):
-        shutil.remove(os.path.join('.', a.checkpoint_path, 'g_02500000'))
+        os.remove(os.path.join('.', a.checkpoint_path, 'g_02500000'))
         shutil.copy('/content/drive/My Drive/hifigan/g_finetuned', os.path.join('.', a.checkpoint_path, 'g_02500000'))
     if os.path.exists('/content/drive/My Drive/hifigan/do_finetuned'):
-        shutil.remove(os.path.join('.', a.checkpoint_path, 'do_02500000'))
+        os.remove(os.path.join('.', a.checkpoint_path, 'do_02500000'))
         shutil.copy('/content/drive/My Drive/hifigan/do_finetuned', os.path.join('.', a.checkpoint_path, 'do_02500000'))
 
     with open(a.config) as f:
