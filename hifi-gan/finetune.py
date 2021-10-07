@@ -203,7 +203,11 @@ def train(rank, a, h):
                             y_g_hat_mel = mel_spectrogram(y_g_hat.squeeze(1), h.n_fft, h.num_mels, h.sampling_rate,
                                                           h.hop_size, h.win_size,
                                                           h.fmin, h.fmax_for_loss)
-                            val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
+                            if y_mel.shape == y_g_hat_mel.shape:
+                                val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
+                            else:
+                                print(f'Validation batch {j} shape error: {y_mel.shape} and {y_g_hat_mel.shape}')
+                                continue
 
                             if j <= 4:
                                 if steps == 0:
