@@ -96,7 +96,7 @@ def train(rank, a, h):
                                        sampler=None,
                                        batch_size=1,
                                        pin_memory=True,
-                                       drop_last=True)
+                                       drop_last=False)
 
         sw = SummaryWriter(os.path.join(a.checkpoint_path, 'logs'))
 
@@ -205,9 +205,10 @@ def train(rank, a, h):
                                                           h.fmin, h.fmax_for_loss)
                             if y_mel.shape == y_g_hat_mel.shape:
                                 val_err_tot += F.l1_loss(y_mel, y_g_hat_mel).item()
-                            else:
-                                print(f'Validation batch {j} shape error: {y_mel.shape} and {y_g_hat_mel.shape}')
-                                continue
+                            val_err_tot += F.l1_loss(y_mel, y_g_hat_mel[:,:,:y_mel.size(2)]).item()
+                            # else:
+                            #     print(f'Validation batch {j} shape error: {y_mel.shape} and {y_g_hat_mel.shape}')
+                            #     continue
 
                             if j <= 4:
                                 if steps == 0:
